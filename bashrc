@@ -65,6 +65,10 @@ localpatch() {
 }
 
 preserveperms() {
+	# Restore permissions from the real system into newly installed files.
+	# This code works only with basic permissions such us mode, owner and group.
+	# Some 'Preserve perms' logs may be because ebuilds are changing permissions not into $D
+	# but in pkg_* functions on real filesystem, which is wrong, For example app-misc/screen doing it.
 
 	myelog(){
 		ewarn "$@"
