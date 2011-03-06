@@ -13,6 +13,12 @@
 # * Neither the name of the Piotr Karbowski nor the names of its contributors may be
 #   used to endorse or promote products derived from this software without specific
 #   prior written permission.
+#
+# QuickStart:
+# mkdir /root/src
+# cd /root/src
+# git clone https://github.com/slashbeast/foobashrc.git
+# ln -s /root/src/foobashrc/bashrc /etc/portage/bashrc
 
 localpatch() {
 	local patches_overlay_dir patches patch locksufix
