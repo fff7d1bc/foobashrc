@@ -25,7 +25,7 @@ localpatch() {
 
 	locksufix="${RANDOM}"
 
-	LOCALPATCH_OVERLAY="${LOCALPATCH_OVERLAY:-/etc/portage/patches}"
+	LOCALPATCH_OVERLAY="${LOCALPATCH_OVERLAY:-/etc/portage/localpatches}"
 
 	if [ -d "${LOCALPATCH_OVERLAY}" ]; then
 		if [ -d "${LOCALPATCH_OVERLAY}/${CATEGORY}/${PN}-${PV}-${PR}" ]; then
@@ -122,7 +122,9 @@ pre_src_prepare() {
 }
 
 post_pkg_preinst() {
-	if hasq preserveperms ${foobashrc_modules}; then
-		preserveperms
-	fi
+	if hasq pathparanoid ${foobashrc_modules}; then /root/bin/pathparanoid --prefix "$D" --check --adjust; fi
+}
+
+post_pkg_postinst() {
+	if hasq pathparanoid ${foobashrc_modules}; then /root/bin/pathparanoid --check --adjust; fi
 }
