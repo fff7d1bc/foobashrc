@@ -70,51 +70,6 @@ localpatch() {
 	fi
 }
 
-preserveperms() {
-	# Restore permissions from the real system into newly installed files.
-	# This code works only with basic permissions such us mode, owner and group.
-	# Some 'Preserve perms' logs may be because ebuilds are changing permissions not into $D
-	# but in pkg_* functions on real filesystem, which is wrong, For example app-misc/screen doing it.
-
-	myelog(){
-		ewarn "$@"
-		if [ -n "${preserveperms_logfile}" ]; then
-			echo "${CATEGORY}/${PN}-${PVR}: $@" >> ${preserveperms_logfile}
-		fi
-	}
-
-	find ${D} | while read line; do
-		newthing="${line}"
-		oldthing="${ROOT}${line/${D}/}"
-		if [ -e "${oldthing}" ]; then
-			oldthing_owner="$(stat -c '%U' "${oldthing}")"
-			oldthing_group="$(stat -c '%G' "${oldthing}")"
-			oldthing_mode="$(stat -c '%a' "${oldthing}")"
-
-			newthing_owner="$(stat -c '%U' "${newthing}")"
-			newthing_group="$(stat -c '%G' "${newthing}")"
-			newthing_mode="$(stat -c '%a' "${newthing}")"
-
-			if [ "${newthing_owner}" != "${oldthing_owner}" ]; then
-				myelog "Preserve perms on \${D}${oldthing}: Changing owner from '${newthing_owner}' to '${oldthing_owner}'"
-				chown "${oldthing_owner}" "${newthing}" || die 'chown failed.'
-			fi
-			
-			if [ "${newthing_group}" != "${oldthing_group}" ]; then
-				myelog "Preserve perms on \${D}${oldthing}: Changing group from '${newthing_group}' to '${oldthing_group}'"
-				chgrp "${oldthing_group}" "${newthing}" || die 'chgrp failed.'
-			fi
-
-			if [ "${newthing_mode}" != "${oldthing_mode}" ]; then
-				myelog "Preserve perms on \${D}${oldthing}: Changing mode from '${newthing_mode}' to '${oldthing_mode}'" 
-				chmod "${oldthing_mode}" "${newthing}" || die 'chmod failed.'
-			fi
-		fi
-	done
-
-	unset -f myelog
-}
-
 pre_src_prepare() {
 	if hasq localpatch ${foobashrc_modules}; then 
 		localpatch
