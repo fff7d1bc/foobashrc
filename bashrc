@@ -70,7 +70,7 @@ localpatch() {
 	fi
 }
 
-pre_src_prepare() {
+post_src_unpack() {
 	if hasq localpatch ${foobashrc_modules}; then 
 		localpatch
 	fi
