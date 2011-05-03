@@ -70,6 +70,23 @@ localpatch() {
 	fi
 }
 
+striplafiles() {
+	local i installlacrap donotstriplafilesfor
+	donotstriplafilesfor=( imagemagick libtool )
+	for i in "${donotstriplafilesfor[@]}"; do
+		if [ "${PN}" = "${i}" ]; then
+			installlacrap='true'
+		fi
+	done
+	if ! [ "${installlacrap}" = 'true' ]; then
+		local line
+		find "$D" -type f -name '*.la' | while read line; do
+			einfo "Removing \${D}/${line/${D}} [striplafiles] ..."
+			rm "${line}"; eend $?
+		done
+	fi
+}
+
 post_src_unpack() {
 	if hasq localpatch ${foobashrc_modules}; then 
 		localpatch
@@ -77,6 +94,7 @@ post_src_unpack() {
 }
 
 post_pkg_preinst() {
+	if hasq striplafiles ${foobashrc_modules}; then striplafiles; fi
 	if hasq pathparanoid ${foobashrc_modules}; then /root/bin/pathparanoid --prefix "$D" --check --adjust; fi
 }
 
