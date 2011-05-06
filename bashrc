@@ -72,7 +72,8 @@ localpatch() {
 
 striplafiles() {
 	local i installlacrap donotstriplafilesfor
-	donotstriplafilesfor=( imagemagick libtool )
+	# Some packages need .la crappy files, we will preserve them here.
+	donotstriplafilesfor=( imagemagick libtool gst-plugins-base libsidplay gnome-bluetooth kdelibs )
 	for i in "${donotstriplafilesfor[@]}"; do
 		if [ "${PN}" = "${i}" ]; then
 			installlacrap='true'
