@@ -20,6 +20,8 @@
 # git clone https://github.com/slashbeast/foobashrc.git
 # ln -s /root/src/foobashrc/bashrc /etc/portage/bashrc
 
+
+
 localpatch() {
 	local patches_overlay_dir patches patch locksufix
 
@@ -88,17 +90,18 @@ striplafiles() {
 	fi
 }
 
+
 post_src_unpack() {
-	if hasq localpatch ${foobashrc_modules}; then 
+	if has localpatch ${foobashrc_modules}; then 
 		localpatch
 	fi
 }
 
 post_pkg_preinst() {
-	if hasq striplafiles ${foobashrc_modules}; then striplafiles; fi
-	if hasq pathparanoid ${foobashrc_modules}; then /root/bin/pathparanoid --prefix "$D" --check --adjust; fi
+	if has striplafiles ${foobashrc_modules}; then striplafiles; fi
+	if has pathparanoid ${foobashrc_modules}; then /root/bin/pathparanoid --prefix "$D" --check --adjust; fi
 }
 
 post_pkg_postinst() {
-	if hasq pathparanoid ${foobashrc_modules}; then /root/bin/pathparanoid --check --adjust; fi
+	if has pathparanoid ${foobashrc_modules}; then /root/bin/pathparanoid --check --adjust; fi
 }
