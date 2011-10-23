@@ -79,11 +79,12 @@ striplafiles() {
 	for i in "${donotstriplafilesfor[@]}"; do
 		if [ "${PN}" = "${i}" ]; then
 			installlacrap='true'
+			break
 		fi
 	done
 	if ! [ "${installlacrap}" = 'true' ]; then
 		local line
-		find "$D" -type f -name '*.la' | while read line; do
+		find "${D}" -type f -name '*.la' -print0 | while read -d $'\0' line; do
 			einfo "Removing \${D}/${line/${D}} [striplafiles] ..."
 			rm "${line}"; eend $?
 		done
@@ -98,7 +99,7 @@ post_src_unpack() {
 }
 
 post_pkg_preinst() {
-	if has striplafiles ${foobashrc_modules}; then striplafiles; fi
+	if has striplafiles ${foobashrc_modules} && ! has 'static-libs' ${USE}; then striplafiles; fi
 	if has pathparanoid ${foobashrc_modules}; then /root/bin/pathparanoid --prefix "$D" --check --adjust; fi
 }
 
