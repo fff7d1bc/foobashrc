@@ -73,16 +73,20 @@ localpatch() {
 }
 
 striplafiles() {
-	local i installlacrap donotstriplafilesfor
-	# Some packages need .la crappy files, we will preserve them here.
-	donotstriplafilesfor=( imagemagick libtool gst-plugins-base libsidplay gnome-bluetooth kdelibs )
-	for i in "${donotstriplafilesfor[@]}"; do
+	# Do nothing if USE contain static-libs.
+	if has 'static-libs' ${USE}; then return; fi
+
+	local i install_lafiles lafiles_whitelist
+
+	# Some packages need .la files, we will whitelist them here.
+	lafiles_whitelist=( imagemagick libtool gst-plugins-base libsidplay gnome-bluetooth kdelibs )
+	for i in "${lafiles_whitelist[@]}"; do
 		if [ "${PN}" = "${i}" ]; then
-			installlacrap='true'
+			install_lafiles='true'
 			break
 		fi
 	done
-	if ! [ "${installlacrap}" = 'true' ]; then
+	if ! [ "${install_lafiles}" = 'true' ]; then
 		local line
 		find "${D}" -type f -name '*.la' -print0 | while read -d $'\0' line; do
 			einfo "Removing \${D}/${line/${D}} [striplafiles] ..."
@@ -99,7 +103,7 @@ post_src_unpack() {
 }
 
 post_pkg_preinst() {
-	if has striplafiles ${foobashrc_modules} && ! has 'static-libs' ${USE}; then striplafiles; fi
+	if has striplafiles ${foobashrc_modules} then striplafiles; fi
 	if has pathparanoid ${foobashrc_modules}; then /root/bin/pathparanoid --prefix "$D" --check --adjust; fi
 }
 
