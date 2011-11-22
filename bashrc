@@ -103,7 +103,7 @@ post_src_unpack() {
 }
 
 post_pkg_preinst() {
-	if has striplafiles ${foobashrc_modules} then striplafiles; fi
+	if has striplafiles ${foobashrc_modules}; then striplafiles; fi
 	if has pathparanoid ${foobashrc_modules}; then /root/bin/pathparanoid --prefix "$D" --check --adjust; fi
 }
 
