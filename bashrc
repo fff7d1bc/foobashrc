@@ -23,53 +23,60 @@
 
 
 localpatch() {
-	local patches_overlay_dir patches patch locksufix
-
-	locksufix="${RANDOM}"
-
-	LOCALPATCH_OVERLAY="${LOCALPATCH_OVERLAY:-/etc/portage/localpatches}"
-
-	if [ -d "${LOCALPATCH_OVERLAY}" ]; then
-		if [ -d "${LOCALPATCH_OVERLAY}/${CATEGORY}/${PN}-${PV}-${PR}" ]; then
-			patches_overlay_dir="${LOCALPATCH_OVERLAY}/${CATEGORY}/${PN}-${PV}-${PR}"
-		elif [ -d "${LOCALPATCH_OVERLAY}/${CATEGORY}/${PN}-${PV}" ]; then
-			patches_overlay_dir="${LOCALPATCH_OVERLAY}/${CATEGORY}/${PN}-${PV}"
-		elif [ -d "${LOCALPATCH_OVERLAY}/${CATEGORY}/${PN}" ]; then
-			patches_overlay_dir="${LOCALPATCH_OVERLAY}/${CATEGORY}/${PN}"
-		fi
-
-		if [ -n "${patches_overlay_dir}" ]; then
-			patches="$(find "${patches_overlay_dir}"/ -type f -regex '.*\.\(diff\|\patch\)$' | sort -n)";
-		fi
+	# Return (skip localpatch) if there is no 'localpatch' in foobashrc_modules variable
+	# or if 2nd item from FUNCNAME array is not specified phase (or default one, if not specified).
+	if ! has localpatch ${foobashrc_modules} || [ "${FUNCNAME[1]}" != "${localpatch_into_phase:-post_src_unpack}" ]; then
+		# Localpatch is not enabled.
+		return
 	else
-		ewarn "LOCALPATCH_OVERLAY is set to '${LOCALPATCH_OVERLAY}' but there is no such directory."
-	fi
+		local patches_overlay_dir patches patch locksufix
 
-	if [ -n "${patches}" ]; then
-		echo '>>> Applying local patches ...'
-		if [ ! -d "${S}" ]; then
-			eerror "The \$S variable pointing to non existing dir. Propably ebuild is messing with it."
-			eerror "Localpatch cannot work in such case."
-			die "localpatch failed."
-		fi
-		for patch in ${patches}; do
-			if [ -r "${patch}" ] && [ ! -f "${S}/.patch-${patch##*/}.${locksufix}" ]; then
-				for patchprefix in {0..4}; do
-					if patch -d "${S}" --dry-run -p${patchprefix} -i "${patch}" --silent > /dev/null; then
-						einfo "Applying ${patch##*/} [localpatch] ..."
-						patch -d "${S}" -p${patchprefix} -i "${patch}" --silent; eend $?
-						touch "${S}/.patch-${patch##*/}.${locksufix}"
-						EPATCH_EXCLUDE+=" ${patch##*/} "
-						break
-					elif [ "${patchprefix}" -ge 4 ]; then
-						eerror "\e[1;31mLocal patch ${patch##*/} does not fit.\e[0m"; eend 1; die "localpatch failed."
-					fi
-				done
+		locksufix="${RANDOM}"
+
+		LOCALPATCH_OVERLAY="${LOCALPATCH_OVERLAY:-/etc/portage/localpatches}"
+
+		if [ -d "${LOCALPATCH_OVERLAY}" ]; then
+			if [ -d "${LOCALPATCH_OVERLAY}/${CATEGORY}/${PN}-${PV}-${PR}" ]; then
+				patches_overlay_dir="${LOCALPATCH_OVERLAY}/${CATEGORY}/${PN}-${PV}-${PR}"
+			elif [ -d "${LOCALPATCH_OVERLAY}/${CATEGORY}/${PN}-${PV}" ]; then
+				patches_overlay_dir="${LOCALPATCH_OVERLAY}/${CATEGORY}/${PN}-${PV}"
+			elif [ -d "${LOCALPATCH_OVERLAY}/${CATEGORY}/${PN}" ]; then
+				patches_overlay_dir="${LOCALPATCH_OVERLAY}/${CATEGORY}/${PN}"
 			fi
-		done
 
-		rm "${S}"/.patch-*."${locksufix}" -f
-	fi
+			if [ -n "${patches_overlay_dir}" ]; then
+				patches="$(find "${patches_overlay_dir}"/ -type f -regex '.*\.\(diff\|\patch\)$' | sort -n)";
+			fi
+		else
+			ewarn "LOCALPATCH_OVERLAY is set to '${LOCALPATCH_OVERLAY}' but there is no such directory."
+		fi
+
+		if [ -n "${patches}" ]; then
+			echo '>>> Applying local patches ...'
+			if [ ! -d "${S}" ]; then
+				eerror "The \$S variable pointing to non existing dir. Propably ebuild is messing with it."
+				eerror "Localpatch cannot work in such case."
+				die "localpatch failed."
+			fi
+			for patch in ${patches}; do
+				if [ -r "${patch}" ] && [ ! -f "${S}/.patch-${patch##*/}.${locksufix}" ]; then
+					for patchprefix in {0..4}; do
+						if patch -d "${S}" --dry-run -p${patchprefix} -i "${patch}" --silent > /dev/null; then
+							einfo "Applying ${patch##*/} [localpatch] ..."
+							patch -d "${S}" -p${patchprefix} -i "${patch}" --silent; eend $?
+							touch "${S}/.patch-${patch##*/}.${locksufix}"
+							EPATCH_EXCLUDE+=" ${patch##*/} "
+							break
+						elif [ "${patchprefix}" -ge 4 ]; then
+							eerror "\e[1;31mLocal patch ${patch##*/} does not fit.\e[0m"; eend 1; die "localpatch failed."
+						fi
+					done
+				fi
+			done
+
+			rm "${S}"/.patch-*."${locksufix}" -f
+			fi
+		fi
 }
 
 striplafiles() {
@@ -95,11 +102,48 @@ striplafiles() {
 	fi
 }
 
+# All the ebuild pre and post functions.
+# If function foo is not enabled, then it will 'return' after executing foo.
+
+pre_src_unpack() { 
+	localpatch
+}
 
 post_src_unpack() {
-	if has localpatch ${foobashrc_modules}; then 
-		localpatch
-	fi
+	localpatch
+}
+
+pre_src_prepare() {
+	localpatch
+}
+
+post_src_prepare() {
+	localpatch
+}
+
+pre_src_configure() {
+	localpatch
+}
+
+post_src_configure() {
+	localpatch
+}
+
+pre_src_compile() {
+	localpatch
+}
+
+post_src_compile() {
+	localpatch
+}
+
+pre_src_install() {
+	localpatch
+}
+
+post_src_install() {
+	# Srsly what you may want patch *after* installing sources?
+	localpatch
 }
 
 post_pkg_preinst() {
