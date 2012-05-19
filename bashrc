@@ -45,7 +45,7 @@ localpatch() {
 			fi
 
 			if [ -n "${patches_overlay_dir}" ]; then
-				patches="$(find "${patches_overlay_dir}"/ -type f -regex '.*\.\(diff\|\patch\)$' | sort -n)";
+				patches="$(find "${patches_overlay_dir}"/ -type f -o -type l -regex '.*\.\(diff\|\patch\)$' | sort -n)";
 			fi
 		else
 			ewarn "LOCALPATCH_OVERLAY is set to '${LOCALPATCH_OVERLAY}' but there is no such directory."
@@ -59,7 +59,7 @@ localpatch() {
 				die "localpatch failed."
 			fi
 			for patch in ${patches}; do
-				if [ -r "${patch}" ] && [ ! -f "${S}/.patch-${patch##*/}.${locksufix}" ]; then
+				if [ -f "${patch}" ] && [ -r "${patch}" ] && [ ! -f "${S}/.patch-${patch##*/}.${locksufix}" ]; then
 					for patchprefix in {0..4}; do
 						if patch -d "${S}" --dry-run -p${patchprefix} -i "${patch}" --silent > /dev/null; then
 							einfo "Applying ${patch##*/} [localpatch] ..."
