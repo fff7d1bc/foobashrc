@@ -45,7 +45,7 @@ localpatch() {
 			fi
 
 			if [ -n "${patches_overlay_dir}" ]; then
-				patches="$(find "${patches_overlay_dir}"/ -regex '.*\.\(diff\|\patch\)$' -type f -o -type l | sort -n)";
+				patches="$(find "${patches_overlay_dir}"/ -name '*.diff' -o -name '*.patch' | sort -n)";
 			fi
 		else
 			ewarn "LOCALPATCH_OVERLAY is set to '${LOCALPATCH_OVERLAY}' but there is no such directory."
