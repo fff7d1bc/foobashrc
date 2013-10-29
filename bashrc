@@ -147,10 +147,10 @@ post_src_install() {
 }
 
 post_pkg_preinst() {
-	if has striplafiles ${foobashrc_modules}; then striplafiles; fi
-	if has pathparanoid ${foobashrc_modules}; then /root/bin/pathparanoid --prefix "$D" --check --adjust; fi
+	has striplafiles ${foobashrc_modules} && striplafiles
+	has pathparanoid ${foobashrc_modules} && pathparanoid --restore-acls --recursive --prefix "${D}" /
 }
 
 post_pkg_postinst() {
-	if has pathparanoid ${foobashrc_modules}; then /root/bin/pathparanoid --check --adjust; fi
+	has pathparanoid ${foobashrc_modules} && pathparanoid --restore-acls --recursive  /
 }
