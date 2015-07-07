@@ -25,7 +25,7 @@
 localpatch() {
 	# Return (skip localpatch) if there is no 'localpatch' in foobashrc_modules variable
 	# or if 2nd item from FUNCNAME array is not specified phase (or default one, if not specified).
-	if ! has localpatch ${foobashrc_modules} || [ "${FUNCNAME[1]}" != "${localpatch_into_phase:-post_src_unpack}" ]; then
+	if [ "${FUNCNAME[1]}" != "${localpatch_into_phase:-post_src_unpack}" ]; then
 		# Localpatch is not enabled.
 		return
 	else
@@ -106,44 +106,45 @@ striplafiles() {
 # If function foo is not enabled, then it will 'return' after executing foo.
 
 pre_src_unpack() { 
-	localpatch
+	has localpatch ${foobashrc_modules} && localpatch
 }
 
 post_src_unpack() {
-	localpatch
+	has localpatch ${foobashrc_modules} && localpatch
 }
 
 pre_src_prepare() {
-	localpatch
+	has localpatch ${foobashrc_modules} && localpatch
 }
 
 post_src_prepare() {
-	localpatch
+	has localpatch ${foobashrc_modules} && localpatch
 }
 
 pre_src_configure() {
-	localpatch
+	has localpatch ${foobashrc_modules} && localpatch
 }
 
 post_src_configure() {
-	localpatch
+	has localpatch ${foobashrc_modules} && localpatch
 }
 
 pre_src_compile() {
-	localpatch
+	has localpatch ${foobashrc_modules} && localpatch
 }
 
 post_src_compile() {
-	localpatch
+	has localpatch ${foobashrc_modules} && localpatch
 }
 
 pre_src_install() {
-	localpatch
+	has localpatch ${foobashrc_modules} && localpatch
 }
 
 post_src_install() {
 	# Srsly what you may want patch *after* installing sources?
-	localpatch
+	has localpatch ${foobashrc_modules} && localpatch
+
 }
 
 post_pkg_preinst() {
