@@ -79,6 +79,17 @@ localpatch() {
 		fi
 }
 
+break_hardlinks() {
+    # Useful when running under Grsecurity's RBAC
+    # thats could be troublesome when dealing with hardlinks.
+    local hardlink sufix
+    while read hardlink; do
+        einfo "Breaking hardlink ${hardlink} ..."
+        sufix="${RANDOM}"
+        cp -a "${hardlink}" "${hardlink}._tmp_${sufix}" && mv -f "${hardlink}._tmp_${sufix}" "${hardlink}"
+    done < <(find "$D" -type f -links +1)
+}
+
 striplafiles() {
 	# Do nothing if USE contain static-libs.
 	if has 'static-libs' ${USE}; then return; fi
@@ -144,7 +155,7 @@ pre_src_install() {
 post_src_install() {
 	# Srsly what you may want patch *after* installing sources?
 	has localpatch ${foobashrc_modules} && localpatch
-
+    has break_hardlinks ${foobashrc_modules} && break_hardlinks
 }
 
 post_pkg_preinst() {
