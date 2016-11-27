@@ -40,6 +40,8 @@ localpatch() {
 				patches_overlay_dir="${LOCALPATCH_OVERLAY}/${CATEGORY}/${PN}-${PV}-${PR}"
 			elif [ -d "${LOCALPATCH_OVERLAY}/${CATEGORY}/${PN}-${PV}" ]; then
 				patches_overlay_dir="${LOCALPATCH_OVERLAY}/${CATEGORY}/${PN}-${PV}"
+			elif [ -d "${LOCALPATCH_OVERLAY}/${CATEGORY}/${PN}:${SLOT}" ]; then
+				patches_overlay_dir="${LOCALPATCH_OVERLAY}/${CATEGORY}/${PN}:${SLOT}"
 			elif [ -d "${LOCALPATCH_OVERLAY}/${CATEGORY}/${PN}" ]; then
 				patches_overlay_dir="${LOCALPATCH_OVERLAY}/${CATEGORY}/${PN}"
 			fi
